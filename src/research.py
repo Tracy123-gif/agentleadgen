@@ -25,6 +25,8 @@ import re
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+import requests
+
 from .models import Stage1Candidate
 from .producthunt_client import ProductHuntPost, get_client as get_ph_client
 from .search_client import SearchResult, get_client
@@ -78,7 +80,14 @@ def research_candidate(candidate: Stage1Candidate) -> EvidenceBundle:
 
     ph_client = get_ph_client()
     if ph_client:
-        bundle.producthunt = ph_client.find_launch(name)
+        try:
+            bundle.producthunt = ph_client.find_launch(name)
+        except requests.exceptions.RequestException:
+            # Product Hunt is a best-effort structured-evidence lookup, not a
+            # required step — a network failure here (e.g. the host being
+            # unreachable from this environment) should degrade to "no PH
+            # evidence" like a genuine miss, not abort the whole candidate.
+            bundle.producthunt = None
 
     id_queries = [
         f'"{name}" company website founder CEO',
