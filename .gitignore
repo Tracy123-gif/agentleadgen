@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.pyc
+data/cache/
+data/checkpoints/
+data/output/*.xlsx
+!data/output/.gitkeep
+data/input/*
+!data/input/.gitkeep
+.venv/
+credentials/
+*.json.key
